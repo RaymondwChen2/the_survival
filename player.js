@@ -32,7 +32,6 @@ function playPause() {
 }
 
 
-    
 canvas.width = 1000;
 canvas.height = 800;
 
@@ -126,9 +125,17 @@ function spawnObjects(){
     const y = 0;
     const radius = 40;
     const color = 'blue';
-    const velocity = {x: 0, y: 0.75};
+    let velocity = {x: 0, y: 0.75};
     fallingObjects.push(new FallingObjects(x, y, radius, color, velocity));
   }, 2000);
+  setInterval(() => {
+    const x2 = Math.random() * canvas.width;
+    const y2 = 0;
+    const radius2 = 40;
+    const color2 = 'blue';
+    const velocity2 = { x: 0, y: 0.5 };
+    fallingObjects.push(new FallingObjects2(x2, y2, radius2, color2, velocity2));
+  }, 4000);
 }
 
 
@@ -158,20 +165,19 @@ class FallingObjects2 {
 const enemyShip2 = new Image();
 enemyShip2.src = 'enemyShip2.png';
 
-function spawnObjects2() {
-  setInterval(() => {
-    const x = Math.random() * canvas.width;
-    const y = 0;
-    const radius = 40;
-    const color = 'blue';
-    const velocity = { x: 0, y: 0.5 };
-    fallingObjects2.push(new FallingObjects2(x, y, radius, color, velocity));
-  }, 4000);
-}
+// function spawnObjects2() {
+//   setInterval(() => {
+//     const x = Math.random() * canvas.width;
+//     const y = 0;
+//     const radius = 40;
+//     const color = 'blue';
+//     const velocity = { x: 0, y: 0.5 };
+//     fallingObjects.push(new FallingObjects2(x, y, radius, color, velocity));
+//   }, 4000);
+// }
 
 let projectiles = [];
 let fallingObjects = [];
-let fallingObjects2 = [];
 let animation;
 let score = 0;
 
@@ -228,13 +234,14 @@ document.addEventListener('keydown', function(e){
         // ########### start game ###########
         modal.addEventListener('click', function(){
           animate();
-          spawnObjects2();
           spawnObjects();
           modal.style.display = 'none';
         });
         
         let shipPosW = canvas.width/2.15;
         let shipPosH = canvas.height-120;
+        let life = 5;
+      
 
         function animate(){
           c.save();
@@ -246,23 +253,15 @@ document.addEventListener('keydown', function(e){
           c.drawImage(ship, 208, 384, 208, 192, shipPosW, shipPosH, 100, 100);
           animation = requestAnimationFrame(animate);
           
-          fallingObjects2.forEach((objects2) => {
-            objects2.update();
-          });
-          
-          fallingObjects.forEach((objects)=>{
-            objects.update();
-          });
-
           
           fallingObjects.forEach((obj, objIdx) => {
             obj.update();
             
             // ################### game over ###############
-            if (obj.y === 740){
-              cancelAnimationFrame(animation);
-              gameOverScore.innerHTML = Number(score);
-              gameOver.style.display = 'flex';
+            if (obj.y >= 740){
+                cancelAnimationFrame(animation);
+                gameOverScore.innerHTML = Number(score);
+                gameOver.style.display = 'flex';
             }
             projectiles.forEach((project, projIdx) => {
               let  distance = Math.hypot(project.x - obj.x, project.y - obj.y);
@@ -273,31 +272,6 @@ document.addEventListener('keydown', function(e){
                   fallingObjects.splice(objIdx, 1);
                   projectiles.splice(projIdx, 1);
                   score += 100;
-                  playerScore.innerHTML = Number(score);
-                });
-              }
-            });
-          });
-
-
-          fallingObjects2.forEach((obj, objIdx) => {
-            obj.update();
-
-            // ################### game over ###############
-            if (obj.y === 740) {
-              cancelAnimationFrame(animation);
-              gameOverScore.innerHTML = Number(score);
-              gameOver.style.display = 'flex';
-            }
-            projectiles.forEach((project, projIdx) => {
-              let distance = Math.hypot(project.x - obj.x, project.y - obj.y);
-
-              // ######### removing falling object and projectile also gain points ########
-              if (distance - obj.radius - project.radius < 1) {
-                setTimeout(() => {
-                  fallingObjects2.splice(objIdx, 1);
-                  projectiles.splice(projIdx, 1);
-                  score += 200;
                   playerScore.innerHTML = Number(score);
                 });
               }
